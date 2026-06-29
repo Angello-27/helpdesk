@@ -7,7 +7,7 @@ workers NATS sin HTTP. Pensada para correr en local con `docker-compose` y despl
 en **AWS** con Terraform.
 
 > Este repositorio migra por fases desde [`diplomado`](../diplomado). La documentación
-> de diseño se conserva en [`docs/`](docs/) (fase 2 de la migración).
+> de diseño está en [`docs/`](docs/) y [`ARQUITECTURA.md`](ARQUITECTURA.md).
 
 ---
 

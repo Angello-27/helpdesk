@@ -1,11 +1,30 @@
-# 🎟️ Proyecto Helpdesk - Sistema de Mesa de Ayuda
+# Proyecto Helpdesk — Sistema de Mesa de Ayuda
 
 Grupo 4 | Diplomado DevSecOps Essentials
 
-Sistema de gestión de tickets de soporte con arquitectura de microservicios en AWS, desplegable con Terraform.
+> **Este documento reemplaza el PDF externo** (`Proyecto_IaC_Microservicios_Instrucciones.pdf`).
+> Aquí están las especificaciones, la rúbrica y el estado del repo.
 
-## 📋 Tabla de contenidos
+## Documentos del equipo (leer primero)
 
+| Documento | Para qué |
+| --------- | -------- |
+| [`ESTADO_PROYECTO_RUBRICA.md`](ESTADO_PROYECTO_RUBRICA.md) | Avance vs calificación (100 pts) |
+| [`SEPARACION_5_PERSONAS_MULTI_REPO.md`](SEPARACION_5_PERSONAS_MULTI_REPO.md) | Rol, rama Git y tareas por integrante |
+| [`GUIA_IMPLEMENTACION.md`](GUIA_IMPLEMENTACION.md) | Pasos de acción desde la base actual |
+| [`../ARQUITECTURA.md`](../ARQUITECTURA.md) | Diseño actual y objetivo AWS |
+
+---
+
+## Tabla de contenidos
+
+- [Objetivos de aprendizaje](#objetivos-de-aprendizaje)
+- [Descripción del proyecto](#descripcion-del-proyecto)
+- [Caso Grupo 4: Mesa de Ayuda](#caso-grupo-4-mesa-de-ayuda)
+- [Requisitos técnicos](#requisitos-tecnicos)
+- [Rúbrica de evaluación](#rubrica-de-evaluacion)
+- [Entregables y presentación](#entregables-y-presentacion)
+- [Estado actual del repo](#estado-actual-del-repo)
 - [Descripción General](#descripcion-general)
 - [Requisitos Previos](#requisitos-previos)
 - [Estructura del Proyecto](#estructura-del-proyecto)
@@ -18,7 +37,127 @@ Sistema de gestión de tickets de soporte con arquitectura de microservicios en 
 
 ---
 
-## 📖 Descripción General {#descripcion-general}
+## Objetivos de aprendizaje
+
+Al terminar el proyecto, el grupo debe ser capaz de:
+
+1. Desplegar infraestructura completa en AWS con Terraform, reproducible y versionada en Git.
+2. Modelar microservicios con comunicación asíncrona vía NATS y descubrimiento vía Cloud Map.
+3. Distinguir comunicación síncrona (HTTP/ALB) de asíncrona (eventos/NATS).
+4. Aplicar mínimo privilegio con Security Groups encadenados.
+5. Exponer un frontend en la nube que consuma el backend vía ALB.
+6. Gestionar el ciclo de vida de la infra (`apply` / `destroy`) con disciplina de costos.
+
+---
+
+## Descripción del proyecto {#descripcion-del-proyecto}
+
+Tres partes sobre AWS, definidas con Terraform:
+
+| Parte | Qué es | Restricción |
+| ----- | ------ | ----------- |
+| 1. Frontend | App web que consume el backend | CRUD básico sobre tickets |
+| 2. Backend | Microservicios + NATS | Mínimo 3 servicios conectados a NATS |
+| 3. IaC | Terraform en AWS | Reproducible con apply/destroy |
+
+**Decisión del Grupo 4:** monorepo único (`helpdesk/`) con 5 integrantes en ramas `feature/*`.
+
+---
+
+## Caso Grupo 4: Mesa de Ayuda {#caso-grupo-4-mesa-de-ayuda}
+
+| Elemento | Especificación |
+| -------- | -------------- |
+| Entidad CRUD | Tickets de soporte |
+| Servicio HTTP (ALB) | `api-gateway` → `tickets-service` (patrón gateway) |
+| Worker routing | Valida agente por categoría y asigna |
+| Worker notifications | Notifica asignación o rechazo |
+| Flujo NATS | `ticket.created` → routing → `ticket.assigned` / `ticket.unassigned` → notifications |
+| Validación clave | Marcar **sin asignar** si no hay agente para la categoría |
+
+Diagrama y detalle: [`../ARQUITECTURA.md`](../ARQUITECTURA.md), [`FLUJO_EVENTOS_COMPLETO.md`](FLUJO_EVENTOS_COMPLETO.md).
+
+---
+
+## Requisitos técnicos {#requisitos-tecnicos}
+
+### Backend
+
+- Mínimo 3 microservicios de negocio conectados a NATS.
+- Al menos 1 servicio HTTP detrás del ALB (`api-gateway`).
+- Al menos 2 workers event-driven (`routing`, `notifications`).
+- NATS en ECS (producción) / contenedor local (desarrollo).
+- Persistencia en motor administrado AWS — **RDS PostgreSQL** (elegido por el grupo).
+- Service discovery: Cloud Map `*.app.internal` (sin IPs hardcodeadas).
+
+### Frontend
+
+- CRUD sobre tickets (Create, Read, Update, Delete).
+- React + MUI (tecnología libre, sin auth obligatoria).
+- Desplegado en AWS vía Terraform (S3 ± CloudFront recomendado).
+- Consume backend por DNS público del ALB.
+- CORS documentado.
+
+### Infraestructura (Terraform)
+
+Servicios AWS obligatorios: VPC, ECS Fargate, ECR, ALB, RDS, Cloud Map, IAM, CloudWatch,
+Security Groups, frontend en S3.
+
+Calidad IaC: reproducible, sin secretos en Git, variables/outputs, mínimo privilegio,
+`destroy` limpio.
+
+---
+
+## Rúbrica de evaluación {#rubrica-de-evaluacion}
+
+| Criterio | Puntos | Qué se evalúa |
+| -------- | ------ | ------------- |
+| IaC / Terraform | 40 | apply reproducible; servicios AWS cableados; SGs; outputs; destroy limpio |
+| Backend microservicios | 25 | ≥3 servicios NATS; flujo eventos; Cloud Map; persistencia |
+| Frontend en la nube | 15 | AWS vía Terraform; CRUD; ALB; CORS |
+| Funcionamiento E2E | 10 | Demo: crear → evento → resultado visible |
+| Presentación | 10 | Claridad; diagrama; trade-offs |
+
+**Extras (+10):** HTTPS ALB, Secrets Manager, state S3, CI/CD, autoscaling, Multi-AZ.
+
+Detalle por integrante: [`ESTADO_PROYECTO_RUBRICA.md`](ESTADO_PROYECTO_RUBRICA.md).
+
+---
+
+## Entregables y presentación {#entregables-y-presentacion}
+
+### Entregables Git
+
+1. Backend (3+ microservicios) + frontend + Terraform + README + docker-compose
+2. Diagrama de arquitectura
+3. Presentación 15–20 min
+4. Demo funcional en AWS
+
+### Presentación debe cubrir
+
+**Punto 1 — Frontend en la nube:** CRUD desplegado, Terraform, conexión ALB, CORS.
+
+**Punto 2 — Backend NATS:** 3+ servicios, flujo eventos, Cloud Map, Security Groups.
+
+**Demo sugerida:** crear ticket → logs routing/notifications → estado visible en UI.
+
+---
+
+## Estado actual del repo {#estado-actual-del-repo}
+
+| Componente | Base local | AWS producción |
+| ---------- | ---------- | -------------- |
+| api-gateway + 3 workers | ✅ | ❌ |
+| NATS + Postgres Docker | ✅ | ❌ |
+| Frontend React CRUD | ✅ | ❌ |
+| Flujo eventos NATS | ⚠️ Parcial (ticket BD sin actualizar al asignar) | — |
+| Terraform módulos | ❌ Solo `main.tf` | ❌ |
+
+**Puntuación estimada hoy:** ~45–55 / 100. Ver checklist en [`ESTADO_PROYECTO_RUBRICA.md`](ESTADO_PROYECTO_RUBRICA.md).
+
+---
+
+## Descripción General {#descripcion-general}
 
 Sistema de mesa de ayuda que permite gestionar solicitudes de soporte de TI mediante:
 
@@ -31,15 +170,17 @@ Sistema de mesa de ayuda que permite gestionar solicitudes de soporte de TI medi
 - **Infraestructura**: Terraform + AWS (ECS, RDS, ALB, CloudMap)
 - **Base de datos**: PostgreSQL en RDS
 
-### Características clave
+### Características
 
-✅ CRUD de tickets  
-✅ Asignación automática a agentes por categoría  
-✅ Flujo de eventos asíncrono con NATS  
-✅ Service discovery vía CloudMap  
-✅ Logging con CloudWatch  
-✅ Security Groups con mínimo privilegio  
-✅ Reproducible con `terraform apply`
+| Característica | Local | AWS |
+| -------------- | ----- | --- |
+| CRUD de tickets | ✅ | ⏳ |
+| Asignación automática por categoría | ⚠️ Eventos OK, BD pendiente | ⏳ |
+| Flujo NATS | ✅ | ⏳ |
+| Cloud Map | — | ⏳ |
+| CloudWatch Logs | — | ⏳ |
+| Security Groups | — | ⏳ |
+| terraform apply reproducible | — | ❌ |
 
 ---
 
@@ -122,19 +263,7 @@ helpdesk-project/
 │   ├── main.tf
 │   ├── variables.tf
 │   ├── terraform.tfvars.example
-│   ├── outputs.tf
-│   ├── modules/
-│   │   ├── vpc/
-│   │   ├── ecs/
-│   │   ├── rds/
-│   │   ├── alb/
-│   │   ├── cloudmap/
-│   │   ├── ecr/
-│   │   ├── iam/
-│   │   ├── security-groups/
-│   │   ├── s3-frontend/
-│   │   └── cloudwatch/
-│   └── .gitignore
+│   └── modules/                  # ⏳ POR IMPLEMENTAR (Persona 5)
 ├── docker-compose.yml
 ├── init-db.sql
 ├── nginx.conf
@@ -142,9 +271,11 @@ helpdesk-project/
 │   └── workflows/
 │       └── deploy.yml
 ├── docs/
-│   ├── ARQUITECTURA.md
-│   ├── FLUJO_EVENTOS.md
-│   └── DEPLOYMENT.md
+│   ├── README_COMPLETO.md        # Este archivo (especificaciones PDF)
+│   ├── ESTADO_PROYECTO_RUBRICA.md
+│   ├── SEPARACION_5_PERSONAS_MULTI_REPO.md
+│   ├── GUIA_IMPLEMENTACION.md
+│   └── FRONTEND.md
 ├── .gitignore
 ├── README.md
 └── package.json

@@ -129,13 +129,14 @@ Ver el paso a paso en [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.m
 
 ## 📚 Documentación
 
-| Documento                                                                          | Contenido                                             |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| [`ARQUITECTURA.md`](ARQUITECTURA.md)                                               | Arquitectura, flujo de eventos, decisiones            |
-| [`docs/FRONTEND.md`](docs/FRONTEND.md)                                             | **Frontend React + MUI** — estructura, dev, build     |
-| [`docs/API_GATEWAY.md`](docs/API_GATEWAY.md)                                       | Patrón API Gateway y **receta para añadir endpoints** |
-| [`docs/FLUJO_EVENTOS_COMPLETO.md`](docs/FLUJO_EVENTOS_COMPLETO.md)                 | Flujo de eventos detallado                            |
-| [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.md)                       | Implementación y despliegue paso a paso               |
+- [`docs/README_COMPLETO.md`](docs/README_COMPLETO.md) — Especificaciones del proyecto (reemplaza PDF)
+- [`docs/ESTADO_PROYECTO_RUBRICA.md`](docs/ESTADO_PROYECTO_RUBRICA.md) — Avance vs rúbrica (100 pts)
+- [`docs/SEPARACION_5_PERSONAS_MULTI_REPO.md`](docs/SEPARACION_5_PERSONAS_MULTI_REPO.md) — Rol, rama Git y tareas
+- [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.md) — Pasos de acción desde la base
+- [`ARQUITECTURA.md`](ARQUITECTURA.md) — Arquitectura y decisiones
+- [`docs/FRONTEND.md`](docs/FRONTEND.md) — Frontend React + MUI
+- [`docs/API_GATEWAY.md`](docs/API_GATEWAY.md) — Patrón API Gateway
+- [`docs/FLUJO_EVENTOS_COMPLETO.md`](docs/FLUJO_EVENTOS_COMPLETO.md) — Flujo NATS detallado
 
 ---
 

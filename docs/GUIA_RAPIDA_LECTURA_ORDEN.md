@@ -5,29 +5,19 @@
 ### Fase 1: Entendimiento (30 minutos)
 
 ```text
-1. LEE PRIMERO: 
-   └─ 00_INDICE_ARCHIVOS.md (este archivo)
-
-2. LUEGO:
-   └─ ESTRUCTURA_PROYECTO.md (overview de componentes)
-
-3. FRONTEND:
-   └─ FRONTEND.md (React + MUI — estructura y desarrollo)
-
-4. DESPUÉS:
-   └─ FLUJO_EVENTOS_COMPLETO.md (paso a paso visual)
+1. README_COMPLETO.md     ← Especificaciones (PDF integrado)
+2. ESTADO_PROYECTO_RUBRICA.md ← Avance vs 100 pts
+3. SEPARACION_5_PERSONAS_MULTI_REPO.md ← Tu rol + rama Git
+4. ../ARQUITECTURA.md     ← Diseño objetivo
 ```
 
-### Fase 2: Organización del equipo (opcional)
+### Fase 2: Acción (cada integrante)
 
 ```text
-4. Roles y carpetas en el monorepo:
-   └─ SEPARACION_5_PERSONAS_MULTI_REPO.md (referencia histórica de roles)
-
-   Decisión tomada: MONOREPO único — todo en helpdesk/
+5. GUIA_IMPLEMENTACION.md ← Pasos de tu fase (1–5)
+6. Crear rama feature/<rol>-<apellido>
+7. Marcar checkboxes en ESTADO_PROYECTO_RUBRICA.md al avanzar
 ```
-
-> El análisis Monorepo vs Multi-Repo ya no aplica: el equipo eligió un solo repositorio.
 
 ### Fase 3: Implementación (1-2 horas)
 

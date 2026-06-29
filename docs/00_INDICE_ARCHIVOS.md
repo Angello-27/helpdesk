@@ -23,13 +23,16 @@ Construir una plataforma de gestión de tickets de soporte con:
 
 ### 📌 Documentación General
 
-| # | Archivo                        | Descripción                                          | Tamaño       |
-| - | ------------------------------ | ---------------------------------------------------- | ------------ |
-| 1 | `00_INDICE_ARCHIVOS.md`        | **Este archivo** - Índice de todo                    |              |
-| 2 | `18_README.md`                 | **LECTURA OBLIGATORIA** - Guía completa del proyecto | ~3000 líneas |
-| 3 | `ESTRUCTURA_PROYECTO.md`       | Árbol de directorios, componentes, quick start       | ~200 líneas  |
-| 4 | `20_FLUJO_EVENTOS_COMPLETO.md` | Flujo detallado paso a paso, diagrama ASCII          | ~500 líneas  |
-| 5 | `21_GUIA_IMPLEMENTACION.md`    | Implementación paso a paso desde 0                   | ~400 líneas  |
+| #   | Archivo                               | Descripción                               |
+| --- | ------------------------------------- | ----------------------------------------- |
+| 1   | `00_INDICE_ARCHIVOS.md`               | **Este archivo** — Índice de todo         |
+| 2   | `README_COMPLETO.md`                  | **Especificaciones PDF + guía técnica**   |
+| 3   | `ESTADO_PROYECTO_RUBRICA.md`          | Avance vs calificación — todo el equipo   |
+| 4   | `SEPARACION_5_PERSONAS_MULTI_REPO.md` | Roles, ramas Git, entregables por persona |
+| 5   | `GUIA_IMPLEMENTACION.md`              | Pasos de acción desde la base actual      |
+| 6   | `ESTRUCTURA_PROYECTO.md`              | Árbol de directorios y componentes        |
+| 7   | `FLUJO_EVENTOS_COMPLETO.md`           | Flujo NATS paso a paso                    |
+| 8   | `FRONTEND.md`                         | Guía frontend React + MUI                 |
 
 ### 🔧 Backend - Tickets Service
 
@@ -93,10 +96,11 @@ Construir una plataforma de gestión de tickets de soporte con:
 
 ### Paso 1: Lectura Inicial (30 min)
 
-1. Lee `README.md` o `docs/README_COMPLETO.md` - Overview completo
-2. Lee `docs/ESTRUCTURA_PROYECTO.md` - Entiende componentes
-3. Lee `docs/FRONTEND.md` - Frontend React + MUI
-4. Lee `docs/FLUJO_EVENTOS_COMPLETO.md` - Entiende flow
+1. Lee `README_COMPLETO.md` — Especificaciones del proyecto (reemplaza PDF)
+2. Lee `ESTADO_PROYECTO_RUBRICA.md` — Qué falta para la nota
+3. Lee `SEPARACION_5_PERSONAS_MULTI_REPO.md` — Tu rol y rama Git
+4. Lee `../ARQUITECTURA.md` — Diseño objetivo
+5. Lee `GUIA_IMPLEMENTACION.md` — Pasos de acción
 
 ### Paso 2: Setup Local (1 hora)
 

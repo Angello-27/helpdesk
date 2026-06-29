@@ -137,3 +137,7 @@ El schema y los agentes de prueba se crean en [`init-db.sql`](init-db.sql).
 
 Definido en [`terraform/`](terraform/). Despliegue en
 [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.md).
+
+**Estado vs rúbrica y roles del equipo:**
+[`docs/ESTADO_PROYECTO_RUBRICA.md`](docs/ESTADO_PROYECTO_RUBRICA.md) ·
+[`docs/SEPARACION_5_PERSONAS_MULTI_REPO.md`](docs/SEPARACION_5_PERSONAS_MULTI_REPO.md)

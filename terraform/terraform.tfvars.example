@@ -1,0 +1,64 @@
+# terraform/terraform.tfvars.example
+# Copiar a terraform.tfvars y ajustar los valores
+
+# ==================== PROJECT ====================
+aws_region      = "us-east-1"
+project_name    = "helpdesk"
+environment     = "dev" # dev, staging, prod
+
+# ==================== VPC ====================
+vpc_cidr              = "10.0.0.0/16"
+public_subnet_cidrs   = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs  = ["10.0.10.0/24", "10.0.11.0/24"]
+
+# ==================== CONTAINER ====================
+container_port       = 3000
+container_cpu        = 256  # 0.25 vCPU
+container_memory     = 512  # 512 MB
+desired_task_count   = 1
+
+# ==================== DATABASE ====================
+db_name            = "helpdesk_db"
+db_user            = "helpdesk_admin"
+db_password        = "ChangeMe!Secure123"  # GENERAR CONTRASEÑA FUERTE EN PRODUCCIÓN
+db_instance_class  = "db.t4g.micro"
+db_allocated_storage = 20
+db_engine_version  = "15"
+db_multi_az        = false
+
+# ==================== FRONTEND ====================
+enable_cloudfront     = false
+frontend_bucket_name  = "helpdesk-frontend-${random_id.bucket_suffix.hex}"
+
+# ==================== IMÁGENES DOCKER ====================
+# Estos valores deben actualizarse después de pushear las imágenes a ECR
+tickets_service_image        = "YOUR_ECR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/tickets-service:latest"
+routing_service_image        = "YOUR_ECR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/routing-service:latest"
+notifications_service_image  = "YOUR_ECR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/notifications-service:latest"
+
+# ==================== TAGS ====================
+common_tags = {
+  Grupo     = "Grupo 4"
+  Proyecto  = "Helpdesk"
+  ManagedBy = "Terraform"
+  Creado    = "2024"
+}
+
+# ==================== INSTRUCCIONES ====================
+# 1. Copiar este archivo a terraform.tfvars
+#    cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+#
+# 2. Editar los valores según tu ambiente:
+#    - Cambiar contraseña de DB (IMPORTANTE)
+#    - Actualizar ECR image URIs después de crear los repositorios
+#    - Ajustar region, VPC CIDR, etc.
+#
+# 3. No commitear terraform.tfvars a Git (contiene secretos)
+#    Ya está en .gitignore
+#
+# 4. Para producción:
+#    - Cambiar environment = "prod"
+#    - Cambiar db_instance_class a "db.t4g.small" o mayor
+#    - Cambiar db_multi_az = true
+#    - Cambiar enable_cloudfront = true
+#    - Cambiar desired_task_count = 2 o más

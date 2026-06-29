@@ -4,6 +4,7 @@ import {
   createTicket as apiCreateTicket,
   deleteTicket as apiDeleteTicket,
   fetchTickets,
+  updateTicket as apiUpdateTicket,
 } from '../api/tickets';
 import { POLL_INTERVAL } from '../api/config';
 import type {
@@ -12,6 +13,7 @@ import type {
   TicketCategory,
   TicketStats,
   TicketStatus,
+  UpdateTicketPayload,
 } from '../types/ticket';
 
 export interface TicketFilters {
@@ -118,6 +120,15 @@ export function useTickets() {
     [loadTickets],
   );
 
+  const updateTicket = useCallback(
+    async (id: string, payload: UpdateTicketPayload) => {
+      const updated = await apiUpdateTicket(id, payload);
+      await loadTickets();
+      return updated;
+    },
+    [loadTickets],
+  );
+
   return {
     tickets: filteredTickets,
     allTickets: tickets,
@@ -130,5 +141,6 @@ export function useTickets() {
     loadTickets,
     createTicket,
     deleteTicket,
+    updateTicket,
   };
 }

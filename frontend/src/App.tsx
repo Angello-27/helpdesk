@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { TicketsProvider, useTicketsContext } from './context/TicketsContext';
 import { AppShell } from './layouts/AppShell';
-import { DashboardPage } from './pages/DashboardPage';
-import { useTickets } from './hooks/useTickets';
+import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { theme } from './theme';
 
 type NavItem = 'dashboard' | 'create';
 
-export default function App() {
+function AppContent() {
   const [activeNav, setActiveNav] = useState<NavItem>('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const ticketsState = useTickets();
+  const { apiOnline, apiError } = useTicketsContext();
 
   const handleNavigate = (item: NavItem) => {
     setActiveNav(item);
@@ -21,20 +21,27 @@ export default function App() {
   };
 
   return (
+    <AppShell
+      activeNav={activeNav}
+      onNavigate={handleNavigate}
+      apiOnline={apiOnline}
+      apiError={apiError}
+    >
+      <DashboardPage
+        showCreateForm={showCreateForm}
+        onCreateFormShown={() => setShowCreateForm(false)}
+      />
+    </AppShell>
+  );
+}
+
+export default function App() {
+  return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppShell
-        activeNav={activeNav}
-        onNavigate={handleNavigate}
-        apiOnline={ticketsState.apiOnline}
-        apiError={ticketsState.apiError}
-      >
-        <DashboardPage
-          ticketsState={ticketsState}
-          showCreateForm={showCreateForm}
-          onCreateFormShown={() => setShowCreateForm(false)}
-        />
-      </AppShell>
+      <TicketsProvider>
+        <AppContent />
+      </TicketsProvider>
     </ThemeProvider>
   );
 }

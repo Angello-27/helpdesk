@@ -1,5 +1,5 @@
 import { API_URL } from './config';
-import type { CreateTicketPayload, Ticket } from '../types/ticket';
+import type { CreateTicketPayload, Ticket, UpdateTicketPayload } from '../types/ticket';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -44,4 +44,14 @@ export async function createTicket(payload: CreateTicketPayload): Promise<Ticket
 
 export async function deleteTicket(id: string): Promise<void> {
   await request<void>(`/tickets/${id}`, { method: 'DELETE' });
+}
+
+export async function updateTicket(
+  id: string,
+  payload: UpdateTicketPayload,
+): Promise<Ticket> {
+  return request<Ticket>(`/tickets/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
 }

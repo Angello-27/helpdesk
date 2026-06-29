@@ -33,6 +33,15 @@ export interface CreateTicketPayload {
   solicitante_email: string;
 }
 
+export interface UpdateTicketPayload {
+  asunto?: string;
+  descripcion?: string;
+  categoria?: TicketCategory;
+  prioridad?: TicketPriority;
+  estado?: TicketStatus;
+  agente_nombre?: string;
+}
+
 export interface TicketStats {
   total: number;
   abiertos: number;

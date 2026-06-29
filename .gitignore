@@ -52,6 +52,6 @@ Thumbs.db
 *.swo
 *~
 
-# ============== Claude Code ==============
+# ============== Herramientas locales (no versionar) ==============
+.claude/
 CLAUDE.md
-.claude/settings.local.json

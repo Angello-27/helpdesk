@@ -1,0 +1,181 @@
+# docker-compose.yml
+
+services:
+  # ============== PostgreSQL Database ==============
+  postgres:
+    image: postgres:15-alpine
+    container_name: helpdesk-postgres
+    environment:
+      POSTGRES_DB: helpdesk_db
+      POSTGRES_USER: helpdesk_user
+      POSTGRES_PASSWORD: helpdesk_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U helpdesk_user -d helpdesk_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - helpdesk-network
+
+  # ============== NATS Message Broker ==============
+  nats:
+    image: nats:2.10-alpine
+    container_name: helpdesk-nats
+    ports:
+      - "4222:4222"   # Client port
+      - "8222:8222"   # Monitoring port
+    command: -m 8222 # Enable monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8222/varz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - helpdesk-network
+
+  # ============== API Gateway (UNICO con HTTP) ==============
+  # Borde HTTP del sistema. No tiene logica de negocio ni BD: traduce
+  # HTTP -> NATS (request/reply) hacia tickets-service. En AWS, el ALB
+  # apunta SOLO a este servicio.
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: helpdesk-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NATS_URL: nats://nats:4222
+      FRONTEND_URL: http://localhost:3001
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - helpdesk-network
+    volumes:
+      - ./backend/api-gateway/src:/app/src
+    command: npm run start:dev
+
+  # ============== Tickets Service (Worker NATS, sin HTTP) ==============
+  # Dueño del CRUD y de Postgres. Ya NO expone HTTP: solo responde patrones
+  # NATS 'tickets.*' y publica eventos de dominio 'ticket.*'.
+  tickets-service:
+    build:
+      context: ./backend/tickets-service
+      dockerfile: Dockerfile
+    container_name: helpdesk-tickets-service
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: helpdesk_db
+      DB_USER: helpdesk_user
+      DB_PASSWORD: helpdesk_password
+      NATS_URL: nats://nats:4222
+      FRONTEND_URL: http://localhost:3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - helpdesk-network
+    volumes:
+      - ./backend/tickets-service/src:/app/src
+    command: npm run start:dev
+
+  # ============== Routing Service (Worker) ==============
+  routing-service:
+    build:
+      context: ./backend/routing-service
+      dockerfile: Dockerfile
+    container_name: helpdesk-routing-service
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: helpdesk_db
+      DB_USER: helpdesk_user
+      DB_PASSWORD: helpdesk_password
+      NATS_URL: nats://nats:4222
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - helpdesk-network
+    volumes:
+      - ./backend/routing-service/src:/app/src
+    command: npm run start:dev
+
+  # ============== Notifications Service (Worker) ==============
+  notifications-service:
+    build:
+      context: ./backend/notifications-service
+      dockerfile: Dockerfile
+    container_name: helpdesk-notifications-service
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: helpdesk_db
+      DB_USER: helpdesk_user
+      DB_PASSWORD: helpdesk_password
+      NATS_URL: nats://nats:4222
+      ADMIN_EMAIL: admin@helpdesk.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - helpdesk-network
+    volumes:
+      - ./backend/notifications-service/src:/app/src
+    command: npm run start:dev
+
+  # ============== Frontend (Nginx) ==============
+  frontend:
+    image: nginx:alpine
+    container_name: helpdesk-frontend
+    ports:
+      - "3001:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-gateway
+    networks:
+      - helpdesk-network
+    environment:
+      - API_URL=http://api-gateway:3000
+
+  # ============== (Optional) PgAdmin para gestionar BD ==============
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: helpdesk-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@helpdesk.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - helpdesk-network
+    profiles:
+      - debug
+
+volumes:
+  postgres_data:
+
+networks:
+  helpdesk-network:
+    driver: bridge

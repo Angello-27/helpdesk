@@ -6,9 +6,6 @@ Plataforma de gestión de tickets de soporte construida con **NestJS**, comunica
 workers NATS sin HTTP. Pensada para correr en local con `docker-compose` y desplegarse
 en **AWS** con Terraform.
 
-> Este repositorio migra por fases desde [`diplomado`](../diplomado). La documentación
-> de diseño está en [`docs/`](docs/) y [`ARQUITECTURA.md`](ARQUITECTURA.md).
-
 ---
 
 ## 📁 Estructura del proyecto
@@ -118,9 +115,6 @@ docker-compose logs -f <svc>     # ver logs de un servicio
 docker-compose down              # parar y eliminar contenedores
 docker-compose down -v           # parar y BORRAR la base de datos (reset total)
 ```
-
-> 💡 Hay skills de Claude Code para este proyecto en `.claude/skills/`
-> (`helpdesk-local`, `helpdesk-test-flujo`). Ejecútalos con `/helpdesk-local`, etc.
 
 ---
 

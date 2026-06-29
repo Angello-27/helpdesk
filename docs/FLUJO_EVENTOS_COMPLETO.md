@@ -7,9 +7,9 @@
 │                          INTERNET / FRONTEND                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                               │
-│  Browser (S3 / CloudFront)                                                   │
-│  ├─ http://helpdesk.com                                                      │
-│  └─ HTML/CSS/JS puro                                                         │
+│  Browser (S3 / CloudFront / Nginx local)                                     │
+│  ├─ http://helpdesk.com  o  http://localhost:3001                            │
+│  └─ React 18 + TypeScript + Material UI (SPA)                                │
 │                          │                                                    │
 │                          ▼ POST /tickets                                      │
 │      ┌──────────────────────────────────────┐                                │
@@ -91,9 +91,9 @@
 │    - Prioridad: "alta"                                            │
 │    - Solicitante: "Juan García"                                   │
 │                                                                   │
-│ 2. Click "Enviar" → Ejecuta: app.js createTicket()              │
+│ 2. Click "Enviar" → TicketForm → api/tickets.ts createTicket()               │
 │                                                                   │
-│ 3. fetch() → POST http://ALB_DNS/tickets                         │
+│ 3. fetch() → POST http://localhost:3001/tickets (proxy Nginx → api-gateway)  │
 │              Payload:                                             │
 │              {                                                    │
 │                "asunto": "Monitor no funciona",                  │
@@ -104,9 +104,9 @@
 │              }                                                    │
 │                                                                   │
 │ 4. Response: {id: "uuid", status: "abierto", ...}               │
-│    Alert: "✅ Ticket creado con ID: abc12345"                   │
+│    Snackbar: "Ticket creado con ID: abc12345"                   │
 │                                                                   │
-│ 5. Frontend actualiza lista (polling cada 5seg)                 │
+│ 5. Frontend actualiza lista (useTickets — polling cada 5 s)   │
 │    GET /tickets → Muestra nuevos tickets                        │
 └─────────────────────────────────────────────────────────────────┘
 ```

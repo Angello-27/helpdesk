@@ -11,21 +11,23 @@
 2. LUEGO:
    └─ ESTRUCTURA_PROYECTO.md (overview de componentes)
 
-3. DESPUÉS:
-   └─ 20_FLUJO_EVENTOS_COMPLETO.md (paso a paso visual)
+3. FRONTEND:
+   └─ FRONTEND.md (React + MUI — estructura y desarrollo)
+
+4. DESPUÉS:
+   └─ FLUJO_EVENTOS_COMPLETO.md (paso a paso visual)
 ```
 
-### Fase 2: Decisiones de Equipo (30 minutos)
+### Fase 2: Organización del equipo (opcional)
 
 ```text
-4. ¿Cómo organizarse?
-   └─ 22_SEPARACION_5_PERSONAS_MULTI_REPO.md
+4. Roles y carpetas en el monorepo:
+   └─ SEPARACION_5_PERSONAS_MULTI_REPO.md (referencia histórica de roles)
 
-5. ¿Monorepo o Multi-Repo?
-   └─ 23_MONOREPO_VS_MULTIREPO_ANALISIS.md
-
-6. Decidan juntos y asignen roles
+   Decisión tomada: MONOREPO único — todo en helpdesk/
 ```
+
+> El análisis Monorepo vs Multi-Repo ya no aplica: el equipo eligió un solo repositorio.
 
 ### Fase 3: Implementación (1-2 horas)
 
@@ -53,67 +55,35 @@ Pueden consultar los archivos específicos:
 
 ## 🎯 RESPUESTAS RÁPIDAS
 
-### P1: ¿Cómo dividimos para 5 personas?
+### P1: ¿Cómo dividimos el trabajo?
 
-#### RECOMENDACIÓN: MULTI-REPO
+#### En este monorepo (carpetas por rol)
 
 ```text
-Persona 1: Frontend Developer
-├─ Repo: helpdesk-frontend
-├─ Repo size: ~100 KB
-└─ Responsable: HTML, CSS, JS, deploy S3
-
-Persona 2: Backend - Tickets Service
-├─ Repo: helpdesk-tickets-service  
-├─ Repo size: ~200 KB
-└─ Responsable: CRUD API HTTP
-
-Persona 3: Backend - Routing Service
-├─ Repo: helpdesk-routing-service
-├─ Repo size: ~150 KB
-└─ Responsable: Lógica de asignación
-
-Persona 4: Backend - Notifications Service
-├─ Repo: helpdesk-notifications-service
-├─ Repo size: ~150 KB
-└─ Responsable: Notificaciones
-
-Persona 5: DevOps/Infrastructure
-├─ Repo: helpdesk-infrastructure
-├─ Repo size: ~500 KB (Terraform + Docker)
-└─ Responsable: AWS, Terraform, BD, CI/CD
+Persona 1: frontend/          — React + MUI
+Persona 2: backend/tickets-service/
+Persona 3: backend/routing-service/
+Persona 4: backend/notifications-service/
+Persona 5: terraform/ + docker-compose.yml
 ```
 
-**VENTAJAS:**
+**VENTAJAS del monorepo para equipo pequeño:**
 
-- ✅ Cero merge conflicts
-- ✅ Ownership claro
-- ✅ Deployment independiente
-- ✅ Realista (Netflix model)
+- ✅ Un solo clone y un solo `docker compose up`
+- ✅ Cambios frontend + API en un mismo PR
+- ✅ Contrato NATS visible en el mismo repo
 
-**VER:** `22_SEPARACION_5_PERSONAS_MULTI_REPO.md`
+**Referencia de roles:** `SEPARACION_5_PERSONAS_MULTI_REPO.md` (escrito para multi-repo; adaptar a carpetas).
 
 ---
 
-### P2: ¿Monorepo o Multi-Repo? ¿Qué es la verdad?
+### P2: ¿Monorepo o Multi-Repo?
 
-**RESPUESTA CORTA:**
+**Decisión del proyecto: MONOREPO** — un solo repositorio con `frontend/`, `backend/` y
+`terraform/`. Para un equipo pequeño y un proyecto educativo acoplado con Docker Compose,
+es la opción más simple (un clone, un PR, un `docker compose up`).
 
-| Aspecto    | Monorepo            | Multi-Repo           |
-| ---------- | ------------------- | -------------------- |
-| Empresas   | Google, Meta, Apple | Netflix, AWS, Airbnb |
-| Equipos    | 50+ en 1 repo       | 1 equipo = 1 repo    |
-| Conflictos | Altos               | Bajos                |
-| Tu caso    | ❌ No               | ✅ Sí                |
-
-**PARA TI: Multi-Repo es correcto** porque:
-
-- 5 personas en mismo repo = CAOS
-- Servicios totalmente independientes
-- Simula realidad de empresas grandes
-- Mejor para equipo educativo
-
-**VER:** `23_MONOREPO_VS_MULTIREPO_ANALISIS.md`
+El documento de análisis comparativo fue retirado porque la decisión ya está tomada.
 
 ---
 
@@ -226,7 +196,7 @@ Usuario ve: "Tu ticket fue asignado a Juan"
 
 | Persona      | Ver Archivos                                                                                    |
 | ------------ | ----------------------------------------------------------------------------------------------- |
-| 1 (Frontend) | `10_frontend_index.html`, `11_frontend_styles.css`, `12_frontend_app.js`                        |
+| 1 (Frontend) | `frontend/src/`, `docs/FRONTEND.md` — React + MUI + Vite                                        |
 | 2 (Tickets)  | `01_tickets-service_main.ts`, `02_tickets-service_entities.ts`, `03-05_tickets-service*`        |
 | 3 (Routing)  | `06_routing-service_main.ts`, `07_routing-service_logic.ts`, `08_routing-service_controller.ts` |
 | 4 (Notif)    | `09_notifications-service.ts`                                                                   |
@@ -279,9 +249,9 @@ Presentación
 - `18_README.md` (biblia del proyecto)
 - `ESTRUCTURA_PROYECTO.md` (overview)
 - `20_FLUJO_EVENTOS_COMPLETO.md` (visual)
-- `21_GUIA_IMPLEMENTACION.md` (paso a paso)
-- `22_SEPARACION_5_PERSONAS_MULTI_REPO.md` (equipos)
-- `23_MONOREPO_VS_MULTIREPO_ANALISIS.md` (arquitectura)
+- `GUIA_IMPLEMENTACION.md` (paso a paso)
+- `SEPARACION_5_PERSONAS_MULTI_REPO.md` (roles — referencia histórica)
+- `FRONTEND.md` (frontend React)
 
 ### Backend (9)
 
@@ -289,11 +259,10 @@ Presentación
 - Routing Service: 06-08
 - Notifications Service: 09
 
-### Frontend (3)
+### Frontend (React)
 
-- 10_frontend_index.html
-- 11_frontend_styles.css
-- 12_frontend_app.js
+- `frontend/src/` — componentes, hooks, páginas
+- `docs/FRONTEND.md` — guía del frontend
 
 ### Docker (2)
 
@@ -351,10 +320,10 @@ Presentación
 
 ## ⚠️ Errores Comunes (Evita)
 
-❌ **MONOREPO** para 5 personas
+❌ **No coordinar cambios en el monorepo**
 
-- Resultado: Merge conflicts masivos
-- Solución: Usa Multi-Repo
+- Resultado: Merge conflicts entre carpetas
+- Solución: Ramas por feature, PRs pequeños, comunicar quién toca qué carpeta
 
 ❌ **No definir interfaces** entre servicios
 
@@ -389,10 +358,8 @@ Presentación
 
 ```text
 [ ] Reunión con grupo (30 min)
-[ ] Decidir: Monorepo o Multi-Repo (leer 23_MONOREPO)
-[ ] Asignar personas a roles (leer 22_SEPARACION)
-[ ] Crear 5 repos en GitHub
-[ ] Hacer 1 docker-compose local que funcione
+[ ] Asignar personas a carpetas/roles en el monorepo (ver SEPARACION_5_PERSONAS)
+[ ] Hacer 1 docker compose local que funcione
 ```
 
 ### MAÑANA
@@ -423,14 +390,14 @@ R: 20-40 horas (depende experiencia). Semana educativa.
 **P: ¿Si alguien está atrasado?**
 R: Divide trabajo más fino. Persona 5 ayuda a quien esté bloqueado.
 
-**P: ¿Puedo hacer monorepo?**
-R: Sí, pero leerá 100+ merge conflicts. No recomendado.
+**P: ¿Por qué monorepo y no un repo por servicio?**
+R: Equipo pequeño, proyecto acoplado con Docker Compose. Menos overhead que 5 repos.
 
 **P: ¿Necesito AWS credits?**
 R: $15 free tier debería ser suficiente. Si no, usar localhost + docker-compose.
 
 **P: ¿Puedo agregar más personas?**
-R: Sí, agregar 1 persona = agregar 1 repo. Escalable.
+R: Sí, asignar carpetas o features por rama. El monorepo escala bien hasta ~5-8 colaboradores activos.
 
 **P: ¿Y después de presentación?**
 R: Este proyecto = portfolio. Muéstralo en interviews. 💼
@@ -439,10 +406,10 @@ R: Este proyecto = portfolio. Muéstralo en interviews. 💼
 
 ## 🏆 Al Final del Proyecto Tendrán
 
-✅ 5 repos en GitHub  
-✅ 1 docker-compose que levanta todo  
-✅ 3 microservicios en NestJS funcionando  
-✅ Frontend CRUD en S3  
+✅ 1 repo en GitHub (monorepo)  
+✅ 1 docker compose que levanta todo  
+✅ 4 servicios backend (api-gateway + 3 workers)  
+✅ Frontend React en Nginx / S3  
 ✅ Terraform reproducible para AWS  
 ✅ Demo end-to-end funcionando  
 ✅ Presentación profesional  
@@ -477,11 +444,7 @@ Aprendizaje:
 
 ## 🚀 ¡VAMOS
 
-**Próximo paso:** Lee `22_SEPARACION_5_PERSONAS_MULTI_REPO.md`
-
-Luego: Lee `23_MONOREPO_VS_MULTIREPO_ANALISIS.md`
-
-Luego: Lee `21_GUIA_IMPLEMENTACION.md`
+**Próximo paso:** Lee `GUIA_IMPLEMENTACION.md`
 
 Luego: Comienza el trabajo real.
 

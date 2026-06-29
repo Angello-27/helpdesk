@@ -13,7 +13,7 @@ sin lógica ni BD). Los servicios de dominio son workers NATS sin HTTP. Ver
 ```text
                          ┌──────────────────────────┐
                          │        Frontend          │
-                         │   (Nginx :3001 / S3)      │
+                         │   (React + Nginx :3001)   │
                          └────────────┬─────────────┘
                                       │ HTTP  (POST/GET/PATCH/DELETE /tickets)
                                       ▼
@@ -56,7 +56,7 @@ sin lógica ni BD). Los servicios de dominio son workers NATS sin HTTP. Ver
 | **notifications-service** | NestJS worker NATS    | Escucha `ticket.assigned` / `ticket.unassigned`, registra notificación y simula email                                                                 |
 | **PostgreSQL**            | Base de datos         | Tablas `tickets`, `agents`, `notifications`, `agents_tickets`                                                                                         |
 | **NATS**                  | Message broker        | Transporte de eventos entre servicios                                                                                                                 |
-| **Frontend**              | HTML/JS + Nginx       | UI CRUD; Nginx hace proxy de `/tickets` al backend (mismo origen)                                                                                     |
+| **Frontend**              | React + MUI + Nginx   | UI CRUD; Nginx sirve `dist/` y proxy `/tickets` → api-gateway                                                                                         |
 
 ## 3. Flujo de eventos
 

@@ -9,6 +9,7 @@ Sistema de gestión de tickets de soporte con arquitectura de microservicios en 
 - [Descripción General](#descripcion-general)
 - [Requisitos Previos](#requisitos-previos)
 - [Estructura del Proyecto](#estructura-del-proyecto)
+- [Frontend React + MUI](#frontend-react--mui)
 - [Desarrollo Local (Docker Compose)](#desarrollo-local-docker-compose)
 - [Despliegue en AWS (Terraform)](#despliegue-en-aws-terraform)
 - [Flujo de Eventos](#flujo-de-eventos)
@@ -21,9 +22,10 @@ Sistema de gestión de tickets de soporte con arquitectura de microservicios en 
 
 Sistema de mesa de ayuda que permite gestionar solicitudes de soporte de TI mediante:
 
-- **Frontend**: CRUD de tickets desplegado en S3/CloudFront
-- **Backend**: 3 microservicios comunicados vía NATS
-  - `tickets-service`: API HTTP para CRUD de tickets
+- **Frontend**: SPA React + Material UI desplegada en S3/CloudFront (build Vite → `dist/`)
+- **Backend**: 4 servicios NestJS comunicados vía NATS
+  - `api-gateway`: **único con HTTP** — borde REST → NATS
+  - `tickets-service`: Worker CRUD + Postgres
   - `routing-service`: Worker que asigna tickets a agentes
   - `notifications-service`: Worker que notifica asignaciones
 - **Infraestructura**: Terraform + AWS (ECS, RDS, ALB, CloudMap)
@@ -87,40 +89,35 @@ aws configure
 ```text
 helpdesk-project/
 ├── backend/
-│   ├── tickets-service/          # API HTTP
+│   ├── api-gateway/              # Borde HTTP (:3000) → NATS
 │   │   ├── src/
-│   │   │   ├── main.ts
-│   │   │   ├── app.module.ts
-│   │   │   ├── tickets/
-│   │   │   │   ├── tickets.controller.ts
-│   │   │   │   └── tickets.service.ts
-│   │   │   ├── dto/
-│   │   │   └── entities/
-│   │   │       └── ticket.entity.ts
 │   │   ├── Dockerfile
-│   │   ├── package.json
-│   │   └── tsconfig.json
+│   │   └── package.json
+│   ├── tickets-service/          # Worker NATS (CRUD + Postgres)
+│   │   ├── src/
+│   │   ├── Dockerfile
+│   │   └── package.json
 │   ├── routing-service/          # Worker NATS
 │   │   ├── src/
-│   │   │   ├── main.ts
-│   │   │   ├── app.module.ts
-│   │   │   ├── routing/
-│   │   │   │   ├── routing.controller.ts
-│   │   │   │   └── routing.service.ts
 │   │   ├── Dockerfile
 │   │   └── package.json
-│   ├── notifications-service/    # Worker NATS
-│   │   ├── src/
-│   │   ├── Dockerfile
-│   │   └── package.json
-│   └── shared/
-│       └── nats-config.ts
-├── frontend/
+│   └── notifications-service/    # Worker NATS
+│       ├── src/
+│       ├── Dockerfile
+│       └── package.json
+├── frontend/                       # React 18 + TypeScript + Vite + MUI
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── Dockerfile                # build multi-stage → Nginx
 │   ├── index.html
-│   ├── styles.css
-│   ├── app.js
-│   ├── Dockerfile
-│   └── nginx.conf
+│   └── src/
+│       ├── api/
+│       ├── components/
+│       ├── context/
+│       ├── hooks/
+│       ├── layouts/
+│       ├── pages/dashboard/
+│       └── types/
 ├── terraform/
 │   ├── main.tf
 │   ├── variables.tf
@@ -155,6 +152,22 @@ helpdesk-project/
 
 ---
 
+## Frontend React + MUI
+
+El frontend es una SPA construida con **React 18**, **TypeScript**, **Vite** y **Material UI**.
+
+Guía detallada: [`docs/FRONTEND.md`](FRONTEND.md)
+
+```bash
+# Desarrollo con hot reload
+cd frontend && npm install && npm run dev
+
+# Build de producción
+npm run build   # → frontend/dist/
+```
+
+---
+
 ## 🚀 Desarrollo Local (Docker Compose) {#desarrollo-local-docker-compose}
 
 ### Setup inicial
@@ -170,14 +183,29 @@ npm install --workspace=backend/routing-service
 npm install --workspace=backend/notifications-service
 
 # 3. Levantar stack completo
-docker-compose up --build
+docker compose up --build -d
 
 # Esperar logs como:
-# ✅ Tickets Service corriendo en puerto 3000
+# ✅ api-gateway corriendo en puerto 3000
 # ✅ Routing Service escuchando en NATS
 # ✅ Notifications Service escuchando en NATS
 # ✅ Frontend disponible en http://localhost:3001
 ```
+
+### Desarrollo del frontend (hot reload)
+
+```bash
+# Backend en Docker
+docker compose up -d postgres nats api-gateway tickets-service routing-service notifications-service
+
+# Frontend con Vite
+cd frontend
+npm install
+npm run dev
+# http://localhost:3001
+```
+
+Ver [`docs/FRONTEND.md`](FRONTEND.md) para la guía completa del frontend.
 
 ### Acceso a servicios locales
 
@@ -222,19 +250,20 @@ psql -h localhost -U helpdesk_user -d helpdesk_db
 ### Desarrollo iterativo
 
 ```bash
-# Hot reload está habilitado
-# Editar archivos en src/ se refleja automáticamente
+# Backend: hot reload en src/ (volúmenes montados en docker-compose)
+docker compose logs -f api-gateway tickets-service
 
-# Ver logs en tiempo real
-docker-compose logs -f tickets-service
-docker-compose logs -f routing-service
-docker-compose logs -f notifications-service
+# Frontend: usar Vite en local (recomendado)
+cd frontend && npm run dev
+
+# O reconstruir imagen frontend tras cambios
+docker compose build frontend && docker compose up -d frontend
 
 # Detener y reiniciar servicios específicos
-docker-compose restart routing-service
+docker compose restart routing-service
 
 # Limpiar stack (destructivo)
-docker-compose down -v
+docker compose down -v
 ```
 
 ### Monitoreo local

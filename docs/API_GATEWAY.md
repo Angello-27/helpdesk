@@ -25,8 +25,8 @@ extra mínima en LAN; a cambio, desacoplamiento.
 
 ```text
 Frontend ──HTTP──> Nginx ──HTTP──> api-gateway ──NATS (request/reply)──> tickets-service ──> Postgres
- (app.js)          (proxy /tickets)  (HTTP :3000,          (worker NATS,                       │
-                                      sin lógica/BD)        dueño del dominio)                  │
+ (React)           (proxy /tickets)  (HTTP :3000,          (worker NATS,                       │
+                   sirve dist/)       sin lógica/BD)        dueño del dominio)                  │
                                                                   │ emit() eventos de dominio   │
                                                                   ▼                             │
                                                        ticket.created / ticket.<estado>         │

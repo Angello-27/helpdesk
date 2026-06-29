@@ -55,13 +55,16 @@ Construir una plataforma de gestión de tickets de soporte con:
 | -- | ----------------------------- | ---------------------------------- | ---------- |
 | 14 | `09_notifications-service.ts` | Main + Service + Controller juntos | TypeScript |
 
-### 🎨 Frontend
+### 🎨 Frontend (React + MUI)
 
-| #  | Archivo                  | Descripción                          | Tipo       |
-| -- | ------------------------ | ------------------------------------ | ---------- |
-| 15 | `10_frontend_index.html` | HTML5 - Formulario, tabla, modal     | HTML       |
-| 16 | `11_frontend_styles.css` | Estilos responsive, tema azul        | CSS        |
-| 17 | `12_frontend_app.js`     | Lógica: fetch, polling, filter, CRUD | JavaScript |
+| #  | Ruta / archivo                         | Descripción                                      | Tipo       |
+| -- | -------------------------------------- | ------------------------------------------------ | ---------- |
+| 15 | `frontend/src/main.tsx`                | Entrada de la aplicación React                   | TypeScript |
+| 16 | `frontend/src/api/tickets.ts`          | Cliente REST: fetch, CRUD, PATCH, health         | TypeScript |
+| 17 | `frontend/src/hooks/useTickets.ts`     | Estado, filtros, polling 5 s                     | TypeScript |
+| 18 | `frontend/src/pages/dashboard/`        | DashboardPage, paneles, handlers                 | TypeScript |
+| 19 | `frontend/src/components/`             | Tabla, formulario, dialogs, chips MUI            | TypeScript |
+| 20 | `docs/FRONTEND.md`                     | **Guía completa** del frontend React             | Markdown   |
 
 ### 🐳 Docker & Local Development
 
@@ -90,9 +93,10 @@ Construir una plataforma de gestión de tickets de soporte con:
 
 ### Paso 1: Lectura Inicial (30 min)
 
-1. Lee `18_README.md` - Overview completo
-2. Lee `ESTRUCTURA_PROYECTO.md` - Entiende componentes
-3. Lee `20_FLUJO_EVENTOS_COMPLETO.md` - Entiende flow
+1. Lee `README.md` o `docs/README_COMPLETO.md` - Overview completo
+2. Lee `docs/ESTRUCTURA_PROYECTO.md` - Entiende componentes
+3. Lee `docs/FRONTEND.md` - Frontend React + MUI
+4. Lee `docs/FLUJO_EVENTOS_COMPLETO.md` - Entiende flow
 
 ### Paso 2: Setup Local (1 hora)
 
@@ -103,8 +107,8 @@ Construir una plataforma de gestión de tickets de soporte con:
 ### Paso 3: Desarrollo (2-3 horas)
 
 1. Adapta código backend con tus cambios
-2. Personaliza frontend HTML/CSS
-3. Prueba con `docker-compose up`
+2. Personaliza frontend React/MUI (ver `docs/FRONTEND.md`)
+3. Prueba con `docker compose up`
 
 ### Paso 4: Despliegue (2 horas)
 
@@ -183,10 +187,10 @@ Construir una plataforma de gestión de tickets de soporte con:
 
 ### Frontend (Tu tarea)
 
-- [ ] Personalizar colores/logo
-- [ ] Agregar campos adicionales al formulario si necesario
+- [ ] Personalizar tema MUI en `frontend/src/theme.ts`
+- [ ] Agregar campos al formulario si necesario
 - [ ] Implementar auth (opcional, no requerido)
-- [ ] Testing en navegador
+- [ ] Testing en navegador (`npm run dev`)
 
 ### Terraform (Tu tarea)
 
@@ -322,7 +326,7 @@ Ver `21_GUIA_IMPLEMENTACION.md` Sección "Troubleshooting" para más.
 
 Antes de presentar, verifica:
 
-- [ ] `docker-compose up` funciona sin errores
+- [ ] `docker compose up` funciona sin errores
 - [ ] Frontend accesible en <http://localhost:3001>
 - [ ] API responde en <http://localhost:3000/tickets>
 - [ ] Crear ticket → visible en tabla
@@ -356,8 +360,8 @@ Este proyecto cubre:
 
 ---
 
-**Última actualización**: Enero 2024  
-**Versión**: 1.0.0  
+**Última actualización**: Junio 2026  
+**Versión**: 2.0.0 (frontend React + MUI)  
 **Grupo**: Grupo 4 - Helpdesk  
 **Estado**: 🟢 Listo para producción (dev environment)
 

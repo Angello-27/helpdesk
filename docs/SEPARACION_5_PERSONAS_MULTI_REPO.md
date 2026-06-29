@@ -78,23 +78,24 @@ helpdesk-proyecto/
 
 ```text
 PERSONA 1: Frontend Developer
-├─ Repo: helpdesk-frontend
-├─ Archivos:
-│  ├─ index.html
-│  ├─ styles.css
-│  ├─ app.js
-│  ├─ Dockerfile
-│  └─ nginx.conf
-├─ Tests: Frontend E2E (Selenium/Cypress)
+├─ Repo: helpdesk-frontend (o carpeta frontend/ en monorepo)
+├─ Stack: React 18 + TypeScript + Vite + Material UI
+├─ Archivos clave:
+│  ├─ frontend/src/pages/dashboard/
+│  ├─ frontend/src/components/
+│  ├─ frontend/src/api/tickets.ts
+│  ├─ frontend/Dockerfile
+│  └─ docs/FRONTEND.md
+├─ Tests: Frontend E2E (Cypress/Playwright)
 ├─ Responsabilidades:
-│  ├─ CRUD UI
-│  ├─ Integración con API
-│  ├─ CORS troubleshooting
-│  └─ Despliegue en S3/CloudFront
+│  ├─ CRUD UI (crear, listar, editar, eliminar)
+│  ├─ Integración con API vía proxy Nginx
+│  ├─ Tema MUI y responsive
+│  └─ Build → S3/CloudFront
 └─ Entregables:
-   ├─ Frontend funcional
+   ├─ SPA React funcional
    ├─ Tests
-   └─ Documentación de componentes
+   └─ Documentación (docs/FRONTEND.md)
 
 PERSONA 2: Backend - Tickets Service
 ├─ Repo: helpdesk-tickets-service
@@ -304,22 +305,21 @@ docker-compose up --build
 
 ```text
 helpdesk-frontend/
-├── index.html
-├── styles.css
-├── app.js
-├── components/
-│   ├── form.js
-│   └── table.js
-├── tests/
-│   └── e2e.spec.js
-├── Dockerfile
-├── docker-compose.yml (local dev)
 ├── package.json
+├── vite.config.ts
+├── index.html
+├── Dockerfile
+├── src/
+│   ├── api/tickets.ts
+│   ├── components/
+│   ├── hooks/
+│   ├── pages/dashboard/
+│   └── ...
+├── tests/
+│   └── e2e.spec.ts
 ├── README.md
-├── .gitignore
-└── .github/
-    └── workflows/
-        └── deploy.yml
+└── .github/workflows/
+    └── deploy.yml
 ```
 
 ### Repo 2: Tickets Service (Persona 2)

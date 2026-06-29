@@ -11,8 +11,8 @@ cd helpdesk-project
 # Backend
 mkdir -p backend/{tickets-service,routing-service,notifications-service,shared}/{src,node_modules}
 
-# Frontend
-mkdir -p frontend/components
+# Frontend (React + Vite + MUI)
+mkdir -p frontend/src/{api,components,hooks,layouts,pages/dashboard,context,types,utils}
 
 # Terraform
 mkdir -p terraform/modules/{vpc,ecs,rds,alb,cloudmap,ecr,iam,security-groups,s3-frontend,cloudwatch}

@@ -3,105 +3,106 @@
 ## 📁 Árbol de directorios
 
 ```text
-helpdesk-project/
+helpdesk/
 ├── backend/
-│   ├── tickets-service/
+│   ├── api-gateway/              # UNICO con HTTP (:3000). Borde REST → NATS
 │   │   ├── src/
 │   │   │   ├── main.ts
+│   │   │   ├── messaging/patterns.ts
 │   │   │   ├── dto/
+│   │   │   └── tickets/tickets.controller.ts
+│   │   ├── Dockerfile
+│   │   └── package.json
+│   ├── tickets-service/            # Worker NATS (CRUD + Postgres)
+│   │   ├── src/
+│   │   │   ├── main.ts
 │   │   │   ├── entities/
-│   │   │   └── controllers/
+│   │   │   ├── dto/
+│   │   │   └── tickets/
 │   │   ├── Dockerfile
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   ├── routing-service/
+│   │   └── package.json
+│   ├── routing-service/            # Worker NATS: asignación de agentes
 │   │   ├── src/
 │   │   ├── Dockerfile
 │   │   └── package.json
-│   ├── notifications-service/
-│   │   ├── src/
-│   │   ├── Dockerfile
-│   │   └── package.json
-│   └── shared/
-│       └── nats-config.ts
+│   └── notifications-service/      # Worker NATS: notificaciones
+│       ├── src/
+│       ├── Dockerfile
+│       └── package.json
 │
-├── frontend/
+├── frontend/                       # React 18 + TypeScript + Vite + MUI
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── Dockerfile                  # build multi-stage → Nginx
 │   ├── index.html
-│   ├── styles.css
-│   ├── app.js
-│   ├── components/
-│   │   ├── ticket-form.js
-│   │   └── ticket-list.js
-│   └── Dockerfile
+│   └── src/
+│       ├── api/                    # cliente REST
+│       ├── components/             # UI (tabla, form, dialogs, chips)
+│       ├── context/                # TicketsContext
+│       ├── hooks/                  # useTickets, useSnackbar
+│       ├── layouts/                # AppShell
+│       ├── pages/dashboard/        # DashboardPage + paneles
+│       ├── types/
+│       └── utils/
 │
 ├── terraform/
 │   ├── main.tf
-│   ├── vpc.tf
-│   ├── ecs.tf
-│   ├── rds.tf
-│   ├── alb.tf
-│   ├── cloudmap.tf
-│   ├── iam.tf
-│   ├── security-groups.tf
-│   ├── outputs.tf
 │   ├── variables.tf
-│   └── terraform.tfvars
+│   └── terraform.tfvars.example
 │
 ├── docker-compose.yml
-├── .github/
-│   └── workflows/
-│       └── deploy.yml (opcional - CI/CD)
+├── nginx.conf                      # Sirve dist/ + proxy /tickets
+├── init-db.sql
 ├── docs/
-│   ├── ARQUITECTURA.md
-│   ├── FLUJO_EVENTOS.md
-│   └── DEPLOYMENT.md
+│   ├── FRONTEND.md                 # Guía del frontend React
+│   └── ...
 ├── README.md
-└── .gitignore
+└── ARQUITECTURA.md
 ```
 
 ---
 
 ## 🎯 Resumen de cada componente
 
-### 1️⃣ **Tickets Service** (HTTP/ALB)
+### 1️⃣ **API Gateway** (HTTP :3000)
 
 - **Puerto**: 3000
-- **Responsabilidad**: CRUD de tickets
-- **Eventos que publica**: `ticket.created`, `ticket.updated`
-- **Base de datos**: PostgreSQL (RDS)
+- **Responsabilidad**: Único borde HTTP. Traduce REST → NATS (`tickets.*`)
+- **Sin lógica de negocio ni BD**
 
-### 2️⃣ **Routing Service** (Worker NATS)
+### 2️⃣ **Tickets Service** (Worker NATS)
+
+- **Responsabilidad**: CRUD de tickets en PostgreSQL
+- **Eventos que publica**: `ticket.created`, `ticket.<estado>`
+- **Sin HTTP** — responde patrones NATS
+
+### 3️⃣ **Routing Service** (Worker NATS)
 
 - **Escucha**: `ticket.created`
 - **Lógica**:
   - Busca agentes disponibles en DB
   - Si existe → publica `ticket.assigned`
   - Si no → publica `ticket.unassigned`
-- **Base de datos**: Consulta tabla de agentes en RDS
 
-### 3️⃣ **Notifications Service** (Worker NATS)
+### 4️⃣ **Notifications Service** (Worker NATS)
 
 - **Escucha**: `ticket.assigned`, `ticket.unassigned`
 - **Lógica**:
   - Registra notificaciones en DB
   - Simula envío de email/SMS (logs)
-  - Actualiza estado en tabla de notificaciones
 
-### 4️⃣ **Frontend** (S3/CloudFront)
+### 5️⃣ **Frontend** (React + MUI + Nginx)
 
-- HTML/JS puro
-- Consume API por ALB
-- CRUD visual de tickets
-- CORS habilitado
+- **Stack**: React 18, TypeScript, Vite, Material UI
+- **Puerto local**: 3001 (Nginx sirve el build de `dist/`)
+- **Funciones**: CRUD visual — crear, listar, ver, **editar** (PATCH), eliminar
+- **Comunicación**: mismo origen vía Nginx (`/tickets` → api-gateway)
+- **Detalle**: ver [`FRONTEND.md`](FRONTEND.md)
 
-### 5️⃣ **Infraestructura** (Terraform)
+### 6️⃣ **Infraestructura** (Terraform)
 
-- **VPC**: CIDR 10.0.0.0/16, 2 subnets en AZs distintas
-- **ECS Fargate**: cluster para 3 servicios + NATS
-- **RDS PostgreSQL**: para tickets, agentes, notificaciones
-- **ALB**: expone tickets-service en puerto 80/443
-- **CloudMap**: service discovery interno (`*.app.internal`)
-- **Security Groups**: mínimo privilegio encadenado
+- **VPC**, **ECS Fargate**, **RDS PostgreSQL**, **ALB**, **CloudMap**
+- Frontend estático en **S3 + CloudFront** (build de `npm run build`)
 
 ---
 
@@ -109,13 +110,19 @@ helpdesk-project/
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│                    Frontend (S3)                        │
+│              Frontend (React + Nginx :3001)             │
 │                                                         │
-│      POST /tickets                                      │
+│      POST /tickets (vía proxy Nginx)                    │
 │            ↓                                            │
 │        ┌─────────────────────┐                          │
-│        │  Tickets Service    │                          │
-│        │  (HTTP/ALB:3000)    │                          │
+│        │    api-gateway      │                          │
+│        │  (HTTP :3000)       │                          │
+│        │  HTTP → NATS        │                          │
+│        └────────┬────────────┘                          │
+│                 │ NATS tickets.create                   │
+│        ┌────────▼────────────┐                          │
+│        │  tickets-service    │                          │
+│        │  (worker NATS)      │                          │
 │        │  ├─ Create Ticket   │                          │
 │        │  └─ Save DB         │                          │
 │        └────────┬────────────┘                          │
@@ -127,29 +134,15 @@ helpdesk-project/
 │        └────────┬──────────────┘                        │
 │                 │                                       │
 │         ┌───────┴────────┐                              │
-│         │                │                              │
 │    ┌────▼─────────┐  ┌──▼────────────┐                 │
 │    │   Routing    │  │ Notifications │                 │
 │    │   Service    │  │   Service     │                 │
-│    │ (Worker)     │  │   (Worker)    │                 │
-│    │              │  │               │                 │
-│    │ 1. Buscar    │  │ Escucha:      │                 │
-│    │    agentes   │  │  - assigned   │                 │
-│    │ 2. Si existe │  │  - unassigned │                 │
-│    │    → assigned│  │               │                 │
-│    │ 3. Si no     │  │ Publica notif │                 │
-│    │    → unassigned                 │                 │
-│    └────┬──────────┘  └───────────────┘                 │
-│         │                                               │
-│    Publica:                                             │
-│    - ticket.assigned  ─────────────┐                    │
-│    - ticket.unassigned────────────┼──→ Notifica        │
-│                                   │                     │
-│         RDS PostgreSQL DB          │                    │
-│         ├─ tickets table           │                    │
-│         ├─ agents table            │                    │
-│         └─ notifications table ←───┘                    │
+│    └──────────────┘  └───────────────┘                 │
 │                                                         │
+│         RDS PostgreSQL DB                               │
+│         ├─ tickets table                                │
+│         ├─ agents table                                 │
+│         └─ notifications table                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -157,13 +150,20 @@ helpdesk-project/
 
 ## 🚀 Quick Start
 
-### Desarrollo local (docker-compose)
+### Desarrollo local (docker compose)
 
 ```bash
-cd helpdesk-project
-docker-compose up
+cd helpdesk
+docker compose up --build -d
 # Frontend: http://localhost:3001
-# Tickets API: http://localhost:3000
+# API Gateway: http://localhost:3000
+```
+
+### Desarrollo frontend con hot reload
+
+```bash
+docker compose up -d postgres nats api-gateway tickets-service routing-service notifications-service
+cd frontend && npm install && npm run dev
 ```
 
 ### Desplegar en AWS (Terraform)
@@ -173,35 +173,18 @@ cd terraform
 terraform init
 terraform plan
 terraform apply
-# Outputs: ALB DNS, Frontend URL
-```
-
-### Monitoreo
-
-```bash
-# Logs de tickets-service
-aws logs tail /ecs/tickets-service --follow
-
-# Logs de routing-service
-aws logs tail /ecs/routing-service --follow
-
-# Logs de notifications-service
-aws logs tail /ecs/notifications-service --follow
 ```
 
 ---
 
 ## ✅ Checklist de entrega
 
-- [ ] 3 microservicios funcionando (tickets, routing, notifications)
+- [ ] api-gateway + 3 microservicios workers funcionando
 - [ ] Todos conectados a NATS
-- [ ] Frontend CRUD desplegado en S3
+- [ ] Frontend React CRUD desplegado (S3/CloudFront o Nginx)
 - [ ] RDS PostgreSQL con tablas de tickets, agentes, notificaciones
 - [ ] Terraform reproducible (apply/destroy)
 - [ ] Security Groups con mínimo privilegio
-- [ ] CloudMap para service discovery
-- [ ] CORS configurado
-- [ ] README con instrucciones
-- [ ] docker-compose para dev local
-- [ ] Diagrama de arquitectura
+- [ ] README y docs actualizados
+- [ ] docker compose para dev local
 - [ ] Demo end-to-end

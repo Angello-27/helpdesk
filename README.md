@@ -13,7 +13,7 @@ en **AWS** con Terraform.
 
 ## 📁 Estructura del proyecto
 
-```
+```text
 helpdesk/
 ├── docker-compose.yml          # Orquestación local (Postgres, NATS, gateway, 3 servicios, frontend)
 ├── init-db.sql                 # Schema + seed (se ejecuta al crear el contenedor Postgres)
@@ -80,16 +80,16 @@ curl http://localhost:3000/tickets
 
 Servicios y puertos:
 
-| Servicio              | URL / Puerto              | Rol                                  |
-|-----------------------|---------------------------|--------------------------------------|
-| Frontend (Nginx)      | http://localhost:3001     | UI CRUD de tickets                   |
-| api-gateway           | http://localhost:3000     | **Único con HTTP.** Borde REST → NATS |
-| tickets-service       | (worker, sin HTTP)        | CRUD + Postgres, publica `ticket.created` |
-| routing-service       | (worker, sin HTTP)        | Asigna agente, publica `ticket.*`    |
-| notifications-service | (worker, sin HTTP)        | Registra/"envía" notificaciones      |
-| NATS monitoring       | http://localhost:8222     | Estado del broker                    |
-| PostgreSQL            | localhost:5432            | `helpdesk_db` / `helpdesk_user`      |
-| PgAdmin (opcional)    | http://localhost:5050     | `docker-compose --profile debug up`  |
+| Servicio              | URL / Puerto            | Rol                                       |
+| --------------------- | ----------------------- | ----------------------------------------- |
+| Frontend (Nginx)      | <http://localhost:3001> | UI CRUD de tickets                        |
+| api-gateway           | <http://localhost:3000> | **Único con HTTP.** Borde REST → NATS     |
+| tickets-service       | (worker, sin HTTP)      | CRUD + Postgres, publica `ticket.created` |
+| routing-service       | (worker, sin HTTP)      | Asigna agente, publica `ticket.*`         |
+| notifications-service | (worker, sin HTTP)      | Registra/"envía" notificaciones           |
+| NATS monitoring       | <http://localhost:8222> | Estado del broker                         |
+| PostgreSQL            | localhost:5432          | `helpdesk_db` / `helpdesk_user`           |
+| PgAdmin (opcional)    | <http://localhost:5050> | `docker-compose --profile debug up`       |
 
 ### Probar el flujo completo
 
@@ -134,10 +134,10 @@ Ver el paso a paso en [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.m
 
 ## 📚 Documentación
 
-| Documento | Contenido |
-|-----------|-----------|
-| [`ARQUITECTURA.md`](ARQUITECTURA.md) | Arquitectura, flujo de eventos, decisiones |
-| [`docs/API_GATEWAY.md`](docs/API_GATEWAY.md) | Patrón API Gateway y **receta para añadir endpoints** |
-| [`docs/FLUJO_EVENTOS_COMPLETO.md`](docs/FLUJO_EVENTOS_COMPLETO.md) | Flujo de eventos detallado |
-| [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.md) | Implementación y despliegue paso a paso |
-| [`docs/MONOREPO_VS_MULTIREPO_ANALISIS.md`](docs/MONOREPO_VS_MULTIREPO_ANALISIS.md) | Análisis de organización del repo |
+| Documento                                                                          | Contenido                                             |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [`ARQUITECTURA.md`](ARQUITECTURA.md)                                               | Arquitectura, flujo de eventos, decisiones            |
+| [`docs/API_GATEWAY.md`](docs/API_GATEWAY.md)                                       | Patrón API Gateway y **receta para añadir endpoints** |
+| [`docs/FLUJO_EVENTOS_COMPLETO.md`](docs/FLUJO_EVENTOS_COMPLETO.md)                 | Flujo de eventos detallado                            |
+| [`docs/GUIA_IMPLEMENTACION.md`](docs/GUIA_IMPLEMENTACION.md)                       | Implementación y despliegue paso a paso               |
+| [`docs/MONOREPO_VS_MULTIREPO_ANALISIS.md`](docs/MONOREPO_VS_MULTIREPO_ANALISIS.md) | Análisis de organización del repo                     |
